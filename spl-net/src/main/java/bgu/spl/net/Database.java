@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -17,9 +18,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Database {
     //Todo: check thread-safety
 
-    private ConcurrentHashMap<Integer, Course> courseMap;
-    private ConcurrentHashMap<String,Student> studentMap;
-    private ConcurrentHashMap<String,Admin> adminMap;
+    private ConcurrentHashMap<Short, Course> courseMap;
+
+    private ConcurrentHashMap<String,User> userMap;
 
     private static class SingletonClassHolder {
         static final Database instance = new Database();
@@ -28,8 +29,7 @@ public class Database {
     //to prevent user from creating new Database
     private Database() {
         courseMap = new ConcurrentHashMap<>();
-        studentMap = new ConcurrentHashMap<>();
-        adminMap = new ConcurrentHashMap<>();
+        userMap = new ConcurrentHashMap<>();
     }
 
     /**
@@ -49,9 +49,9 @@ public class Database {
             String line;
             while ((line = reader.readLine()) != null) {
                 String[] stringArr = line.split("\\|");
-                int courseNum = Integer.parseInt(stringArr[0]);
+                short courseNum = Short.parseShort(stringArr[0]);
                 String courseName = stringArr[1];
-                List<Integer> kdamList = parseList(stringArr[2]);
+                List<Short> kdamList = parseList(stringArr[2]);
                 int maxStudents = Integer.parseInt(stringArr[3]);
                 courseMap.put(courseNum, new Course(courseNum, courseName, kdamList, maxStudents, counter++));
             }
@@ -62,17 +62,96 @@ public class Database {
         return false;
     }
 
-    private List<Integer> parseList(String list) {
+    private List<Short> parseList(String list) {
         if (list.equals("[]")) {
             return new ArrayList<>();
         }
         list = list.substring(1,list.length()-1);
         String[] strings = list.split(",");
-        List<Integer> output = new ArrayList<>();
+        List<Short> output = new ArrayList<>();
         for (String str : strings) {
-            output.add(Integer.parseInt(str));
+            output.add(Short.parseShort(str));
         }
         return output;
     }
+
+
+    public boolean addUser(String name,String password,boolean isAdmin){
+        if (userMap.containsKey(name)) return false;
+        else{
+            userMap.put(name, new User(name,password,isAdmin));
+            return true;
+        }
+    }
+
+    public boolean login(String name,String password){
+        User user = userMap.get(name);
+        // user == null iff this user does not exist in the DB
+        if (user!=null && user.verifyPassword(password)){
+            if (!user.isLoggedIn()) {
+                user.setLoggedIn(true);
+                return true;
+            }
+        }
+        return false;
+    }
+    public User getUser(String name){
+        return userMap.get(name);
+    }
+
+    public void logout(String name){
+        userMap.get(name).setLoggedIn(false);
+    }
+
+    public boolean courseReg(short courseNum,User user){
+        Course course = courseMap.get(courseNum);
+        if (course!=null && course.seatsAvailable()>0 && user.isLoggedIn() && !user.isAdmin() &&
+                user.hasKdamCourses(course.getKdamCoursesList()) && !course.isRegistered(user.getUsername())){
+            course.addStudent(user.getUsername());
+            user.addCourse(course);
+            return true;
+        }
+        return false;
+    }
+
+    public List<Short> getKdamCourses(short courseNum) {
+        Course course =  courseMap.get(courseNum);
+        if (course!=null){
+            return course.getKdamCoursesList();
+
+        }
+
+        return null;
+
+    }
+
+    public String getCourseStat(short courseNum){
+        Course course = courseMap.get(courseNum);
+        if (course!=null) return course.toString();
+        return null;
+    }
+
+    public String getStudentStat(String username) {
+        User user = userMap.get(username);
+        if (user!=null) return user.toString();//TODO implement user toString(). FUCK
+        return null;
+    }
+
+    public Boolean isRegistered(short courseNum, User user) {
+        Course course = courseMap.get(courseNum);
+        if (course!=null){
+            return course.isRegistered(user.getUsername());
+        }
+        return null;
+    }
+    public boolean unReg(short courseNum, User user) {
+        Course course = courseMap.get(courseNum);
+        if (course!=null){
+            return course.unReg(user);
+        }
+        return false;
+    }
+
+
 
 }

@@ -16,6 +16,7 @@ public class ObjectEncoderDecoder implements MessageEncoderDecoder<Serializable>
     private byte[] objectBytes = null;
     private int objectBytesIndex = 0;
 
+
     @Override
     public Serializable decodeNextByte(byte nextByte) {
         if (objectBytes == null) { //indicates that we are still reading the length

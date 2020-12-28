@@ -1,17 +1,18 @@
 package bgu.spl.net;
 
 import java.util.List;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class Course {
-    private int courseNum;
+    private short courseNum;
     private String courseName;
-    List<Integer> kdamCoursesList;
+    private List<Short> kdamCoursesList;
     private int numOfMaxStudents;
     private int orderNum;
-    TreeSet<String> studentsRegistered;
+    private TreeSet<String> studentsRegistered;
 
-    public Course(int courseNum, String courseName, List<Integer> kdamCoursesList, int numOfMaxStudents, int orderNum) {
+    public Course(short courseNum, String courseName, List<Short> kdamCoursesList, int numOfMaxStudents, int orderNum) {
         this.courseNum = courseNum;
         this.courseName = courseName;
         this.kdamCoursesList = kdamCoursesList;
@@ -28,12 +29,23 @@ public class Course {
                 + "Students Registered: " + studentsRegistered.toString();
         return output;
     }
+    public int seatsAvailable(){
+        return numOfMaxStudents-studentsRegistered.size();
+    }
 
-    public int getCourseNum() {
+    public boolean isRegistered(String name){
+        return studentsRegistered.contains(name);
+    }
+
+    public void addStudent(String name){
+        studentsRegistered.add(name);
+    }
+
+    public short getCourseNum() {
         return courseNum;
     }
 
-    public void setCourseNum(int courseNum) {
+    public void setCourseNum(short courseNum) {
         this.courseNum = courseNum;
     }
 
@@ -45,11 +57,11 @@ public class Course {
         this.courseName = courseName;
     }
 
-    public List<Integer> getKdamCoursesList() {
+    public List<Short> getKdamCoursesList() {
         return kdamCoursesList;
     }
 
-    public void setKdamCoursesList(List<Integer> kdamCoursesList) {
+    public void setKdamCoursesList(List<Short> kdamCoursesList) {
         this.kdamCoursesList = kdamCoursesList;
     }
 
@@ -59,5 +71,13 @@ public class Course {
 
     public void setNumOfMaxStudents(int numOfMaxStudents) {
         this.numOfMaxStudents = numOfMaxStudents;
+    }
+
+    public int getOrderNum() {
+        return orderNum;
+    }
+
+    public boolean unReg(User user) {
+        return studentsRegistered.remove(user.getUsername());
     }
 }
