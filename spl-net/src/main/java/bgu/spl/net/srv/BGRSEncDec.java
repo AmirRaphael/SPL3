@@ -18,7 +18,7 @@ public class BGRSEncDec implements MessageEncoderDecoder<Message> {
 
     @Override
     public Message decodeNextByte(byte nextByte) {
-        if(bytes==null) {
+        if (bytes == null) {
             opBuffer.put(nextByte);
             if (!opBuffer.hasRemaining()) {
                 opBuffer.flip();
@@ -27,16 +27,15 @@ public class BGRSEncDec implements MessageEncoderDecoder<Message> {
                 opcode = bytesToShort(opBuffer.array());
                 opBuffer.clear();
             }
-            switch (opcode){
+            switch (opcode) {
                 case 4:
                 case 11:
                     return popMsg();
                 default:
                     return null;
             }
-        }
-        else { // if the program gets here, then 'nextByte' is a byte that is *not opcode byte*
-            switch (opcode){
+        } else { // if the program gets here, then 'nextByte' is a byte that is *not opcode byte*
+            switch (opcode) {
                 case 1:
                 case 2:
                 case 3:
@@ -137,10 +136,9 @@ public class BGRSEncDec implements MessageEncoderDecoder<Message> {
         return string.split("\0");
     }
 
-    private short bytesToShort(byte[] byteArr)
-    {
-        short result = (short)((byteArr[0] & 0xff) << 8);
-        result += (short)(byteArr[1] & 0xff);
+    private short bytesToShort(byte[] byteArr) {
+        short result = (short) ((byteArr[0] & 0xff) << 8);
+        result += (short) (byteArr[1] & 0xff);
         return result;
     }
 }

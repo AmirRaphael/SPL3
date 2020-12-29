@@ -6,7 +6,6 @@ import bgu.spl.net.api.MessagingProtocol;
 
 public class BGRSProtocol implements MessagingProtocol<Message> {
     private User user = null;
-
     private boolean shouldTerminate = false;
 
     @Override
