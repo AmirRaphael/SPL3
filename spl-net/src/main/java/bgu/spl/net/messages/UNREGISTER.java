@@ -7,13 +7,18 @@ public class UNREGISTER extends Message {
     short courseNum;
 
     public UNREGISTER(short courseNum) {
+        super(Short.parseShort("10"));
         this.courseNum = courseNum;
     }
 
     @Override
     public Message execute(BGRSProtocol protocol) {
-        if (!protocol.getUser().isAdmin()){
-            boolean unreg = db.unReg(courseNum,protocol.getUser());
+        if (protocol.getUser() != null && !protocol.getUser().isAdmin()) {
+            boolean unReg = db.unReg(courseNum, protocol.getUser());
+            if (unReg) {
+                return new ACK(attachment, msgOpcode);
+            }
         }
+        return new ERR(msgOpcode);
     }
 }

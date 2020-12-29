@@ -8,6 +8,10 @@ public abstract class Message {
     private short opcode;
     protected Database db = Database.getInstance();
 
+    public Message(short opcode) {
+        this.opcode = opcode;
+    }
+
     public abstract Message execute(BGRSProtocol protocol);
 
 }

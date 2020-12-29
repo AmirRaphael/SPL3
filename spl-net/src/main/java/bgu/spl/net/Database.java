@@ -20,7 +20,7 @@ public class Database {
 
     private ConcurrentHashMap<Short, Course> courseMap;
 
-    private ConcurrentHashMap<String,User> userMap;
+    private ConcurrentHashMap<String, User> userMap;
 
     private static class SingletonClassHolder {
         static final Database instance = new Database();
@@ -44,7 +44,7 @@ public class Database {
      * into the Database, returns true if successful.
      */
     boolean initialize(String coursesFilePath) {
-        try(BufferedReader reader = new BufferedReader(new FileReader(coursesFilePath))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(coursesFilePath))) {
             int counter = 0;
             String line;
             while ((line = reader.readLine()) != null) {
@@ -66,7 +66,7 @@ public class Database {
         if (list.equals("[]")) {
             return new ArrayList<>();
         }
-        list = list.substring(1,list.length()-1);
+        list = list.substring(1, list.length() - 1);
         String[] strings = list.split(",");
         List<Short> output = new ArrayList<>();
         for (String str : strings) {
@@ -76,18 +76,19 @@ public class Database {
     }
 
 
-    public boolean addUser(String name,String password,boolean isAdmin){
-        if (userMap.containsKey(name)) return false;
-        else{
-            userMap.put(name, new User(name,password,isAdmin));
+    public boolean addUser(String name, String password, boolean isAdmin) {
+        if (userMap.containsKey(name))
+            return false;
+        else {
+            userMap.put(name, new User(name, password, isAdmin));
             return true;
         }
     }
 
-    public boolean login(String name,String password){
+    public boolean login(String name, String password) {
         User user = userMap.get(name);
         // user == null iff this user does not exist in the DB
-        if (user!=null && user.verifyPassword(password)){
+        if (user != null && user.verifyPassword(password)) {
             if (!user.isLoggedIn()) {
                 user.setLoggedIn(true);
                 return true;
@@ -95,18 +96,19 @@ public class Database {
         }
         return false;
     }
-    public User getUser(String name){
+
+    public User getUser(String name) {
         return userMap.get(name);
     }
 
-    public void logout(String name){
+    public void logout(String name) {
         userMap.get(name).setLoggedIn(false);
     }
 
-    public boolean courseReg(short courseNum,User user){
+    public boolean courseReg(short courseNum, User user) {
         Course course = courseMap.get(courseNum);
-        if (course!=null && course.seatsAvailable()>0 && user.isLoggedIn() && !user.isAdmin() &&
-                user.hasKdamCourses(course.getKdamCoursesList()) && !course.isRegistered(user.getUsername())){
+        if (course != null && course.seatsAvailable() > 0 && user.isLoggedIn() && !user.isAdmin() &&
+                user.hasKdamCourses(course.getKdamCoursesList()) && !course.isRegistered(user.getUsername())) {
             course.addStudent(user.getUsername());
             user.addCourse(course);
             return true;
@@ -115,43 +117,42 @@ public class Database {
     }
 
     public List<Short> getKdamCourses(short courseNum) {
-        Course course =  courseMap.get(courseNum);
-        if (course!=null){
+        Course course = courseMap.get(courseNum);
+        if (course != null) {
             return course.getKdamCoursesList();
-
         }
-
         return null;
-
     }
 
-    public String getCourseStat(short courseNum){
+    public String getCourseStat(short courseNum) {
         Course course = courseMap.get(courseNum);
-        if (course!=null) return course.toString();
+        if (course != null)
+            return course.toString();
         return null;
     }
 
     public String getStudentStat(String username) {
         User user = userMap.get(username);
-        if (user!=null) return user.toString();//TODO implement user toString(). FUCK
+        if (user != null)
+            return user.toString();//TODO implement user toString(). FUCK
         return null;
     }
 
     public Boolean isRegistered(short courseNum, User user) {
         Course course = courseMap.get(courseNum);
-        if (course!=null){
+        if (course != null) {
             return course.isRegistered(user.getUsername());
         }
         return null;
     }
+
     public boolean unReg(short courseNum, User user) {
         Course course = courseMap.get(courseNum);
-        if (course!=null){
-            return course.unReg(user);
+        if (course != null) {
+            return course.unReg(user) && user.removeCourse(course);
         }
         return false;
     }
-
 
 
 }

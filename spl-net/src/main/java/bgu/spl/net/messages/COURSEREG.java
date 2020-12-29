@@ -7,12 +7,17 @@ import bgu.spl.net.srv.BGRSProtocol;
 public class COURSEREG extends Message {
     private short courseNum;
 
+    public COURSEREG(short courseNum) {
+        super(Short.parseShort("5"));
+        this.courseNum = courseNum;
+    }
+
     @Override
     public Message execute(BGRSProtocol protocol) {
         User user = protocol.getUser();
-        if (db.courseReg(courseNum, user)) {
-            return new ACK();
+        if (user != null && db.courseReg(courseNum, user)) {
+            return new ACK(attachment, msgOpcode);
         }
-        return new ERR();
+        return new ERR(msgOpcode);
     }
 }

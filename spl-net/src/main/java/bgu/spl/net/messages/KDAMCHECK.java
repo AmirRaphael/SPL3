@@ -1,7 +1,5 @@
 package bgu.spl.net.messages;
 
-import bgu.spl.net.Course;
-import bgu.spl.net.User;
 import bgu.spl.net.api.Message;
 import bgu.spl.net.srv.BGRSProtocol;
 
@@ -10,10 +8,18 @@ import java.util.List;
 public class KDAMCHECK extends Message {
     private short courseNum;
 
+    public KDAMCHECK(short courseNum) {
+        super(Short.parseShort("6"));
+        this.courseNum = courseNum;
+    }
+
     @Override
     public Message execute(BGRSProtocol protocol) {
-        List<Short> kdams = db.getKdamCourses(courseNum);
-        if (kdams!=null) return new ACK();//TODO: THis is SHit
-        return new ERR();
+        if (protocol.getUser() != null) {
+            List<Short> kdams = db.getKdamCourses(courseNum);
+            if (kdams != null)
+                return new ACK(attachment, msgOpcode);
+        }
+        return new ERR(msgOpcode);
     }
 }

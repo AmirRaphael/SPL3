@@ -1,6 +1,5 @@
 package bgu.spl.net.messages;
 
-import bgu.spl.net.User;
 import bgu.spl.net.api.Message;
 import bgu.spl.net.srv.BGRSProtocol;
 
@@ -9,17 +8,21 @@ public class LOGIN extends Message {
     private String password;
 
     public LOGIN(String username, String password) {
+        super(Short.parseShort("3"));
         this.username = username;
         this.password = password;
     }
 
     @Override
     public Message execute(BGRSProtocol protocol) {
-        boolean loginSuccessful = db.login(username, password);
-        if (loginSuccessful) {
-            protocol.setUser(db.getUser(username));
-            return new ACK();
+        // if user is already logged in - the protocol returns an error
+        if (protocol.getUser() == null) {
+            boolean loginSuccessful = db.login(username, password);
+            if (loginSuccessful) {
+                protocol.setUser(db.getUser(username));
+                return new ACK(attachment, msgOpcode);
+            }
         }
-        return new ERR();
+        return new ERR(msgOpcode);
     }
 }

@@ -7,18 +7,19 @@ public class ISREGISTERED extends Message {
     private short courseNum;
 
     public ISREGISTERED(short courseNum) {
+        super(Short.parseShort("9"));
         this.courseNum = courseNum;
     }
 
     @Override
     public Message execute(BGRSProtocol protocol) {
-        if (!protocol.getUser().isAdmin()){
-            Boolean isRegistered = db.isRegistered(courseNum,protocol.getUser());
-            if (isRegistered!=null){
-                String output = isRegistered ? "REGISTERED":"NOT REGISTERED";
-                return new ACK();
+        if (protocol.getUser() != null && !protocol.getUser().isAdmin()) {
+            Boolean isRegistered = db.isRegistered(courseNum, protocol.getUser());
+            if (isRegistered != null) {
+                String output = isRegistered ? "REGISTERED" : "NOT REGISTERED";
+                return new ACK(attachment, msgOpcode);
             }
         }
-        return new ERR();
+        return new ERR(msgOpcode);
     }
 }

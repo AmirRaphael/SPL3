@@ -38,8 +38,11 @@ public class User {
         courseMap.put(course.getOrderNum(), course);
     }
 
-
-
+    public boolean removeCourse(Course course) {
+        boolean removedFromSet = courseNums.remove(course.getCourseNum());
+        Course removedFromTree = courseMap.remove(course.getOrderNum());
+        return (removedFromSet && removedFromTree != null);
+    }
 
     public TreeMap<Integer, Course> getCourseMap() {
         return courseMap;
@@ -58,12 +61,13 @@ public class User {
             if (!courseNums.contains(kdam)) return false;
         }
         return true;
-
     }
-
-
 
     public boolean verifyPassword(String password) {
         return this.password.equals(password);
+    }
+
+    public HashSet<Short> getCourseNums() {
+        return courseNums;
     }
 }

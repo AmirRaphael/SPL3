@@ -7,17 +7,18 @@ public class COURSESTAT extends Message {
     private short courseNum;
 
     public COURSESTAT(short courseNum) {
+        super(Short.parseShort("7"));
         this.courseNum = courseNum;
     }
 
     @Override
     public Message execute(BGRSProtocol protocol) {
-        if (protocol.getUser().isAdmin()){
+        if (protocol.getUser() != null && protocol.getUser().isAdmin()) {
             String courseStat = db.getCourseStat(courseNum);
-            if (courseStat!=null){
-                return new ACK();
+            if (courseStat != null) {
+                return new ACK(attachment, msgOpcode);
             }
         }
-        return new ERR();
+        return new ERR(msgOpcode);
     }
 }
