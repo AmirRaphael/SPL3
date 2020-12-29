@@ -2,9 +2,7 @@ package bgu.spl.net;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -19,8 +17,8 @@ public class Database {
     //Todo: check thread-safety
 
     private ConcurrentHashMap<Short, Course> courseMap;
-
     private ConcurrentHashMap<String, User> userMap;
+    private List<Short> courseList;
 
     private static class SingletonClassHolder {
         static final Database instance = new Database();
@@ -30,6 +28,7 @@ public class Database {
     private Database() {
         courseMap = new ConcurrentHashMap<>();
         userMap = new ConcurrentHashMap<>();
+        courseList = new ArrayList<>();
     }
 
     /**
@@ -54,6 +53,10 @@ public class Database {
                 List<Short> kdamList = parseList(stringArr[2]);
                 int maxStudents = Integer.parseInt(stringArr[3]);
                 courseMap.put(courseNum, new Course(courseNum, courseName, kdamList, maxStudents, counter++));
+                courseList.add(courseNum); //Added in order of courses in the input file
+            }
+            for (Course course : courseMap.values()) {
+                course.getKdamCoursesList().sort(Comparator.comparing((item) -> courseList.indexOf(item)));
             }
             return true;
         } catch (Exception e) {
@@ -134,7 +137,7 @@ public class Database {
     public String getStudentStat(String username) {
         User user = userMap.get(username);
         if (user != null)
-            return user.toString();//TODO implement user toString(). FUCK
+            return user.toString();
         return null;
     }
 

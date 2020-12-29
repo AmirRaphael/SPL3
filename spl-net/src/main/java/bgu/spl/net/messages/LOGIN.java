@@ -20,9 +20,9 @@ public class LOGIN extends Message {
             boolean loginSuccessful = db.login(username, password);
             if (loginSuccessful) {
                 protocol.setUser(db.getUser(username));
-                return new ACK(attachment, msgOpcode);
+                return new ACK("", opcode);
             }
         }
-        return new ERR(msgOpcode);
+        return new ERR(opcode);
     }
 }

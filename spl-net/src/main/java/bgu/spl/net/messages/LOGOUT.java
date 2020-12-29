@@ -16,8 +16,8 @@ public class LOGOUT extends Message {
         if (user != null) {
             db.logout(user.getUsername());
             protocol.setShouldTerminate(true);
-            return new ACK(attachment, msgOpcode);
+            return new ACK("", opcode);
         }
-        return new ERR(msgOpcode);
+        return new ERR(opcode);
     }
 }

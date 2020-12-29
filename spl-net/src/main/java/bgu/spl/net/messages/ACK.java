@@ -17,4 +17,10 @@ public class ACK extends Message {
     public Message execute(BGRSProtocol protocol) {
         return null;
     }
+
+    @Override
+    public String toString() {
+        return Short.toString(opcode) + Short.toString(msgOpcode) + attachment + "\0";
+
+    }
 }

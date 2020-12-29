@@ -15,4 +15,9 @@ public class ERR extends Message {
     public Message execute(BGRSProtocol protocol) {
         return null;
     }
+
+    @Override
+    public String toString() {
+        return Short.toString(opcode) + Short.toString(msgOpcode);
+    }
 }

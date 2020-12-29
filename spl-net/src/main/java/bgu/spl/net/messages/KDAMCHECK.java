@@ -18,8 +18,8 @@ public class KDAMCHECK extends Message {
         if (protocol.getUser() != null) {
             List<Short> kdams = db.getKdamCourses(courseNum);
             if (kdams != null)
-                return new ACK(attachment, msgOpcode);
+                return new ACK(kdams.toString(), opcode);
         }
-        return new ERR(msgOpcode);
+        return new ERR(opcode);
     }
 }

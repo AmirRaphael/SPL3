@@ -16,8 +16,8 @@ public class STUDENTSTAT extends Message {
         if (protocol.getUser() != null && protocol.getUser().isAdmin()) {
             String studentStat = db.getStudentStat(username);
             if (studentStat != null)
-                return new ACK(attachment, msgOpcode); //TODO fuck this shit we need to do this.
+                return new ACK(studentStat, opcode);
         }
-        return new ERR(msgOpcode);
+        return new ERR(opcode);
     }
 }

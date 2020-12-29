@@ -1,6 +1,7 @@
 package bgu.spl.net;
 
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -69,5 +70,22 @@ public class User {
 
     public HashSet<Short> getCourseNums() {
         return courseNums;
+    }
+
+    private String coursesToString() {
+        String output = "[";
+        for (Integer key : courseMap.keySet()) {
+            output += courseMap.get(key).getCourseNum() + ", ";
+        }
+        if (!courseMap.isEmpty()) {
+            output = output.substring(0, output.length() -2);
+        }
+        return output + "]";
+    }
+
+    @Override
+    public String toString() {
+        return "Student: " + username + "\n" +
+                "Courses: " + coursesToString();
     }
 }

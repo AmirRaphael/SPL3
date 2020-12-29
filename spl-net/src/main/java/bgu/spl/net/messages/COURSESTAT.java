@@ -16,9 +16,9 @@ public class COURSESTAT extends Message {
         if (protocol.getUser() != null && protocol.getUser().isAdmin()) {
             String courseStat = db.getCourseStat(courseNum);
             if (courseStat != null) {
-                return new ACK(attachment, msgOpcode);
+                return new ACK(courseStat, opcode);
             }
         }
-        return new ERR(msgOpcode);
+        return new ERR(opcode);
     }
 }

@@ -16,9 +16,9 @@ public class UNREGISTER extends Message {
         if (protocol.getUser() != null && !protocol.getUser().isAdmin()) {
             boolean unReg = db.unReg(courseNum, protocol.getUser());
             if (unReg) {
-                return new ACK(attachment, msgOpcode);
+                return new ACK("", opcode);
             }
         }
-        return new ERR(msgOpcode);
+        return new ERR(opcode);
     }
 }

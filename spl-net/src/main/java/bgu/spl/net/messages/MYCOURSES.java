@@ -12,8 +12,8 @@ public class MYCOURSES extends Message {
     public Message execute(BGRSProtocol protocol) {
         if (protocol.getUser() != null && !protocol.getUser().isAdmin()) {
             String myCoursesList = protocol.getUser().getCourseNums().toString();
-            return new ACK(attachment, msgOpcode);
+            return new ACK(myCoursesList, opcode);
         }
-        return new ERR(msgOpcode);
+        return new ERR(opcode);
     }
 }

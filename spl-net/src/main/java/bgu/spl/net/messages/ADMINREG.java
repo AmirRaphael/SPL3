@@ -17,8 +17,8 @@ public class ADMINREG extends Message {
     public Message execute(BGRSProtocol protocol) {
         // user must not be logged in - in order to preform Registration
         if (protocol.getUser() == null && db.addUser(username, password, true)) {
-            return new ACK(attachment, msgOpcode);
+            return new ACK("", opcode);
         } else
-            return new ERR(msgOpcode);
+            return new ERR(opcode);
     }
 }

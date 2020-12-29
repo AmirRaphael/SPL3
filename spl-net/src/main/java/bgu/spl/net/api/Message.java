@@ -5,7 +5,7 @@ import bgu.spl.net.User;
 import bgu.spl.net.srv.BGRSProtocol;
 
 public abstract class Message {
-    private short opcode;
+    protected short opcode;
     protected Database db = Database.getInstance();
 
     public Message(short opcode) {
@@ -14,4 +14,7 @@ public abstract class Message {
 
     public abstract Message execute(BGRSProtocol protocol);
 
+    public short getOpcode() {
+        return opcode;
+    }
 }

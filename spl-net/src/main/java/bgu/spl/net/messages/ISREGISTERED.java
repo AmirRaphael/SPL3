@@ -17,9 +17,9 @@ public class ISREGISTERED extends Message {
             Boolean isRegistered = db.isRegistered(courseNum, protocol.getUser());
             if (isRegistered != null) {
                 String output = isRegistered ? "REGISTERED" : "NOT REGISTERED";
-                return new ACK(attachment, msgOpcode);
+                return new ACK(output, opcode);
             }
         }
-        return new ERR(msgOpcode);
+        return new ERR(opcode);
     }
 }
