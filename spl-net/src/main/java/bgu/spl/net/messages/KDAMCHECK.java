@@ -6,7 +6,7 @@ import bgu.spl.net.srv.BGRSProtocol;
 import java.util.List;
 
 public class KDAMCHECK extends Message {
-    private short courseNum;
+    private final short courseNum;
 
     public KDAMCHECK(short courseNum) {
         super(Short.parseShort("6"));

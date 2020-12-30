@@ -1,15 +1,16 @@
 package bgu.spl.net;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class Course {
-    private short courseNum;
-    private String courseName;
-    private List<Short> kdamCoursesList;
-    private int numOfMaxStudents;
-    private int orderNum;
+    private final short courseNum;
+    private final String courseName;
+    private final List<Short> kdamCoursesList;
+    private final int numOfMaxStudents;
+    private final int orderNum;
     private TreeSet<String> studentsRegistered;
 
     public Course(short courseNum, String courseName, List<Short> kdamCoursesList, int numOfMaxStudents, int orderNum) {
@@ -18,7 +19,7 @@ public class Course {
         this.kdamCoursesList = kdamCoursesList;
         this.numOfMaxStudents = numOfMaxStudents;
         this.orderNum = orderNum;
-        studentsRegistered = new TreeSet<>();
+        studentsRegistered = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
     }
 
     @Override
@@ -29,7 +30,7 @@ public class Course {
                 + "Students Registered: " + studentsRegistered.toString();
         return output;
     }
-    public int seatsAvailable(){
+    public synchronized int seatsAvailable(){
         return numOfMaxStudents-studentsRegistered.size();
     }
 
@@ -45,33 +46,12 @@ public class Course {
         return courseNum;
     }
 
-    public void setCourseNum(short courseNum) {
-        this.courseNum = courseNum;
-    }
-
-    public String getCourseName() {
-        return courseName;
-    }
-
-    public void setCourseName(String courseName) {
-        this.courseName = courseName;
-    }
 
     public List<Short> getKdamCoursesList() {
         return kdamCoursesList;
     }
 
-    public void setKdamCoursesList(List<Short> kdamCoursesList) {
-        this.kdamCoursesList = kdamCoursesList;
-    }
 
-    public int getNumOfMaxStudents() {
-        return numOfMaxStudents;
-    }
-
-    public void setNumOfMaxStudents(int numOfMaxStudents) {
-        this.numOfMaxStudents = numOfMaxStudents;
-    }
 
     public int getOrderNum() {
         return orderNum;

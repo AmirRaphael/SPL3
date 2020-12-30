@@ -4,7 +4,7 @@ import bgu.spl.net.api.Message;
 import bgu.spl.net.srv.BGRSProtocol;
 
 public class UNREGISTER extends Message {
-    short courseNum;
+    private final short courseNum;
 
     public UNREGISTER(short courseNum) {
         super(Short.parseShort("10"));

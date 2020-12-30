@@ -4,7 +4,7 @@ import bgu.spl.net.api.Message;
 import bgu.spl.net.srv.BGRSProtocol;
 
 public class COURSESTAT extends Message {
-    private short courseNum;
+    private final short courseNum;
 
     public COURSESTAT(short courseNum) {
         super(Short.parseShort("7"));

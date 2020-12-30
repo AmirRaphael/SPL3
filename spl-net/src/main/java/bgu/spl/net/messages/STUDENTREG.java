@@ -4,8 +4,8 @@ import bgu.spl.net.api.Message;
 import bgu.spl.net.srv.BGRSProtocol;
 
 public class STUDENTREG extends Message {
-    private String username;
-    private String password;
+    private final String username;
+    private final String password;
 
     public STUDENTREG(String username, String password) {
         super(Short.parseShort("2"));

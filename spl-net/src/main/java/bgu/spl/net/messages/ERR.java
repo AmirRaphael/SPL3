@@ -4,7 +4,7 @@ import bgu.spl.net.api.Message;
 import bgu.spl.net.srv.BGRSProtocol;
 
 public class ERR extends Message {
-    private short msgOpcode;
+    private final short msgOpcode;
 
     public ERR(short msgOpcode) {
         super(Short.parseShort("13"));

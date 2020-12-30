@@ -18,7 +18,7 @@ public class Database {
 
     private ConcurrentHashMap<Short, Course> courseMap;
     private ConcurrentHashMap<String, User> userMap;
-    private List<Short> courseList;
+    private final List<Short> courseList;
 
     private static class SingletonClassHolder {
         static final Database instance = new Database();
@@ -80,12 +80,14 @@ public class Database {
 
 
     public boolean addUser(String name, String password, boolean isAdmin) {
-        if (userMap.containsKey(name))
-            return false;
-        else {
-            userMap.put(name, new User(name, password, isAdmin));
-            return true;
-        }
+//        if (userMap.containsKey(name))
+//            return false;
+//        else {
+//            userMap.put(name, new User(name, password, isAdmin));
+//            return true;
+//        }
+        User user =userMap.putIfAbsent(name, new User(name, password, isAdmin));
+        return user==null;
     }
 
     public boolean login(String name, String password) {

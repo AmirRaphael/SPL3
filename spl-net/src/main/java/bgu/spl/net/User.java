@@ -1,16 +1,15 @@
 package bgu.spl.net;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.TreeMap;
 
 public class User {
-    private String username;
-    private String password;
-    private TreeMap<Integer, Course> courseMap;
-    private HashSet<Short> courseNums;
-    private boolean isAdmin;
+    private final String username;
+    private final String password;
+    private final TreeMap<Integer, Course> courseMap;
+    private final HashSet<Short> courseNums;
+    private final boolean isAdmin;
     private boolean isLoggedIn;
 
     public User(String username, String password,boolean isAdmin) {
@@ -22,7 +21,7 @@ public class User {
         this.isLoggedIn = false;
     }
 
-    public boolean isLoggedIn() {
+    public synchronized boolean isLoggedIn() {
         return isLoggedIn;
     }
 
@@ -45,13 +44,6 @@ public class User {
         return (removedFromSet && removedFromTree != null);
     }
 
-    public TreeMap<Integer, Course> getCourseMap() {
-        return courseMap;
-    }
-
-    public void setCourseMap(TreeMap<Integer, Course> courseMap) {
-        this.courseMap = courseMap;
-    }
 
     public boolean isAdmin() {
         return isAdmin;

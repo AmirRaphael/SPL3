@@ -4,8 +4,8 @@ import bgu.spl.net.api.Message;
 import bgu.spl.net.srv.BGRSProtocol;
 
 public class ACK extends Message {
-    private String attachment;
-    private short msgOpcode;
+    private final String attachment;
+    private final short msgOpcode;
 
     public ACK(String attachment, short msgOpcode) {
         super(Short.parseShort("12"));

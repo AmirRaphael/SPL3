@@ -4,7 +4,7 @@ import bgu.spl.net.api.Message;
 import bgu.spl.net.srv.BGRSProtocol;
 
 public class STUDENTSTAT extends Message {
-    private String username;
+    private final String username;
 
     public STUDENTSTAT(String username) {
         super(Short.parseShort("8"));
