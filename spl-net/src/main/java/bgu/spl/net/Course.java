@@ -4,6 +4,8 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.Semaphore;
 
 public class Course {
     private final short courseNum;
@@ -11,7 +13,8 @@ public class Course {
     private final List<Short> kdamCoursesList;
     private final int numOfMaxStudents;
     private final int orderNum;
-    private TreeSet<String> studentsRegistered;
+    private final Semaphore seatsAvailable;
+    private final ConcurrentSkipListSet<String> studentsRegistered;
 
     public Course(short courseNum, String courseName, List<Short> kdamCoursesList, int numOfMaxStudents, int orderNum) {
         this.courseNum = courseNum;
@@ -19,33 +22,32 @@ public class Course {
         this.kdamCoursesList = kdamCoursesList;
         this.numOfMaxStudents = numOfMaxStudents;
         this.orderNum = orderNum;
-        studentsRegistered = new TreeSet<String>(String.CASE_INSENSITIVE_ORDER);
+        this.studentsRegistered = new ConcurrentSkipListSet<>(String.CASE_INSENSITIVE_ORDER);
+        this.seatsAvailable = new Semaphore(numOfMaxStudents);
     }
 
     @Override
     public String toString() {
         int available = numOfMaxStudents - studentsRegistered.size();
-        String output = "Course: (" + courseNum + ") " + courseName + "\n"
+        return "Course: (" + courseNum + ") " + courseName + "\n"
                 + "Seats Available: " + available + "/" + numOfMaxStudents + "\n"
                 + "Students Registered: " + studentsRegistered.toString();
-        return output;
-    }
-    public synchronized int seatsAvailable(){
-        return numOfMaxStudents-studentsRegistered.size();
     }
 
     public boolean isRegistered(String name){
         return studentsRegistered.contains(name);
     }
 
-    public void addStudent(String name){
-        studentsRegistered.add(name);
+    public boolean addStudent(String name){
+        if (seatsAvailable.tryAcquire()){
+           return studentsRegistered.add(name);
+        }
+        return false;
     }
 
     public short getCourseNum() {
         return courseNum;
     }
-
 
     public List<Short> getKdamCoursesList() {
         return kdamCoursesList;
@@ -58,6 +60,9 @@ public class Course {
     }
 
     public boolean unReg(User user) {
-        return studentsRegistered.remove(user.getUsername());
+        boolean removed = studentsRegistered.remove(user.getUsername());
+        if (removed)
+            seatsAvailable.release();
+        return removed;
     }
 }

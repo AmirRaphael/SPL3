@@ -1,32 +1,28 @@
 package bgu.spl.net;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class User {
     private final String username;
     private final String password;
-    private final TreeMap<Integer, Course> courseMap;
-    private final HashSet<Short> courseNums;
+    private final TreeSet<Course> courses;
     private final boolean isAdmin;
-    private boolean isLoggedIn;
+    private final AtomicBoolean isLoggedIn;
 
     public User(String username, String password,boolean isAdmin) {
         this.username = username;
         this.password = password;
         this.isAdmin = isAdmin;
-        this.courseMap = new TreeMap<>();
-        this.courseNums = new HashSet<>();
-        this.isLoggedIn = false;
+        this.isLoggedIn = new AtomicBoolean(false);
+        this.courses = new TreeSet<>(Comparator.comparingInt(Course::getOrderNum));
     }
-
-    public synchronized boolean isLoggedIn() {
-        return isLoggedIn;
+    public boolean login(){
+        return isLoggedIn.compareAndSet(false,true);
     }
-
-    public void setLoggedIn(boolean loggedIn) {
-        isLoggedIn = loggedIn;
+    public void logout(){
+        isLoggedIn.compareAndSet(true, false);
     }
 
     public String getUsername() {
@@ -34,24 +30,21 @@ public class User {
     }
 
     public void addCourse(Course course) {
-        courseNums.add(course.getCourseNum());
-        courseMap.put(course.getOrderNum(), course);
+        courses.add(course);
     }
 
     public boolean removeCourse(Course course) {
-        boolean removedFromSet = courseNums.remove(course.getCourseNum());
-        Course removedFromTree = courseMap.remove(course.getOrderNum());
-        return (removedFromSet && removedFromTree != null);
+        return courses.remove(course);
     }
-
 
     public boolean isAdmin() {
         return isAdmin;
     }
 
     public boolean hasKdamCourses(List<Short> kdams){
+        Set<Short> nums = courses.stream().map(Course::getCourseNum).collect(Collectors.toSet());
         for (Short kdam : kdams){
-            if (!courseNums.contains(kdam)) return false;
+            if (!nums.contains(kdam)) return false;
         }
         return true;
     }
@@ -60,16 +53,16 @@ public class User {
         return this.password.equals(password);
     }
 
-    public HashSet<Short> getCourseNums() {
-        return courseNums;
+    public Set<Short> getCourseNums() {
+        return courses.stream().map(Course::getCourseNum).collect(Collectors.toSet());
     }
 
     private String coursesToString() {
         String output = "[";
-        for (Integer key : courseMap.keySet()) {
-            output += courseMap.get(key).getCourseNum() + ", ";
+        for (Course course : courses) {
+            output += course.getCourseNum() + ", ";
         }
-        if (!courseMap.isEmpty()) {
+        if (!courses.isEmpty()) {
             output = output.substring(0, output.length() -2);
         }
         return output + "]";

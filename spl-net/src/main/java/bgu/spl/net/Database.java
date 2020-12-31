@@ -16,10 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Database {
     //Todo: check thread-safety
 
-    private ConcurrentHashMap<Short, Course> courseMap;
-    private ConcurrentHashMap<String, User> userMap;
+    private final ConcurrentHashMap<Short, Course> courseMap;
+    private final ConcurrentHashMap<String, User> userMap;
     private final List<Short> courseList;
-
     private static class SingletonClassHolder {
         static final Database instance = new Database();
     }
@@ -80,12 +79,6 @@ public class Database {
 
 
     public boolean addUser(String name, String password, boolean isAdmin) {
-//        if (userMap.containsKey(name))
-//            return false;
-//        else {
-//            userMap.put(name, new User(name, password, isAdmin));
-//            return true;
-//        }
         User user =userMap.putIfAbsent(name, new User(name, password, isAdmin));
         return user==null;
     }
@@ -94,10 +87,7 @@ public class Database {
         User user = userMap.get(name);
         // user == null iff this user does not exist in the DB
         if (user != null && user.verifyPassword(password)) {
-            if (!user.isLoggedIn()) {
-                user.setLoggedIn(true);
-                return true;
-            }
+            return user.login();
         }
         return false;
     }
@@ -107,16 +97,16 @@ public class Database {
     }
 
     public void logout(String name) {
-        userMap.get(name).setLoggedIn(false);
+        userMap.get(name).logout();
     }
 
     public boolean courseReg(short courseNum, User user) {
         Course course = courseMap.get(courseNum);
-        if (course != null && course.seatsAvailable() > 0 && user.isLoggedIn() && !user.isAdmin() &&
-                user.hasKdamCourses(course.getKdamCoursesList()) && !course.isRegistered(user.getUsername())) {
-            course.addStudent(user.getUsername());
-            user.addCourse(course);
-            return true;
+        if (course != null && !user.isAdmin() && user.hasKdamCourses(course.getKdamCoursesList()) ) {
+            if(course.addStudent(user.getUsername())){
+                user.addCourse(course);
+                return true;
+            }
         }
         return false;
     }
