@@ -40,7 +40,12 @@ public class Course {
 
     public boolean addStudent(String name){
         if (seatsAvailable.tryAcquire()){
-           return studentsRegistered.add(name);
+           if (studentsRegistered.add(name)){
+               return true;
+           }
+           else {
+               seatsAvailable.release();
+           }
         }
         return false;
     }
