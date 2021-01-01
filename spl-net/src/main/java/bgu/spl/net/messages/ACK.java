@@ -19,8 +19,11 @@ public class ACK extends Message {
     }
 
     @Override
-    public String toString() {
+    /*public String toString() {
         return  msgOpcode +"\0"+ attachment ;
 
+    }*/
+    public String toString() {
+        return Short.toString(opcode) + "," + Short.toString(msgOpcode) + "," + attachment;
     }
 }

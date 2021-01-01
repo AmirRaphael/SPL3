@@ -1,7 +1,6 @@
 package bgu.spl.net.api;
 
 import bgu.spl.net.Database;
-import bgu.spl.net.User;
 import bgu.spl.net.srv.BGRSProtocol;
 
 public abstract class Message {

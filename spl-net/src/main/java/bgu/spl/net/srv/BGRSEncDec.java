@@ -74,35 +74,63 @@ public class BGRSEncDec implements MessageEncoderDecoder<Message> {
 
     @Override
     public byte[] encode(Message message) {
-        if (message.getOpcode()==12){
+        if (message.getOpcode() == 12) {
             byte[] opcode = shortToBytes(message.getOpcode());
             String[] info = message.toString().split("\0");
             byte[] msgOpcode = shortToBytes(Short.parseShort(info[0]));
-            if (info.length>1){
+            if (info.length > 1) {
                 byte[] attach = info[1].getBytes();
-                byte[] result = new byte[4+attach.length+1];
-                for(int i =0; i<2;i++){
-                    result[i]=opcode[i];
-                    result[i+2]=msgOpcode[i];
+                byte[] result = new byte[4 + attach.length + 1];
+                for (int i = 0; i < 2; i++) {
+                    result[i] = opcode[i];
+                    result[i + 2] = msgOpcode[i];
                 }
-                for (int i = 0;i<attach.length;i++){
-                    result[i+4] = attach[i];
+                for (int i = 0; i < attach.length; i++) {
+                    result[i + 4] = attach[i];
                 }
-                result[result.length-1]='\0';
+                result[result.length - 1] = '\0';
                 return result;
-            }
-            else {
+            } else {
                 byte[] result = new byte[5];
-                for(int i =0; i<2;i++){
-                    result[i]=opcode[i];
-                    result[i+2]=msgOpcode[i];
+                for (int i = 0; i < 2; i++) {
+                    result[i] = opcode[i];
+                    result[i + 2] = msgOpcode[i];
                 }
-                result[result.length-1]='\0';
+                result[result.length - 1] = '\0';
                 return result;
             }
         }
 
         return message.toString().getBytes();
+    }
+
+    public byte[] encode1(Message message) {
+        String[] msgInfo = message.toString().split(",");
+        byte[] opcodeBytes = shortToBytes(Short.parseShort(msgInfo[0]));
+        byte[] msgOpcodeBytes = shortToBytes(Short.parseShort(msgInfo[1]));
+        byte[] encodedMsg;
+        byte[] attachmentBytes;
+
+        //Handle ACK Message
+        if (message.getOpcode() == 12) {
+            if (msgInfo.length == 3) {
+                //Message has optional attachment
+                attachmentBytes = msgInfo[2].getBytes();
+            } else {
+                //Message has no optional attachment
+                attachmentBytes = null;
+            }
+            int attachmentLength = (attachmentBytes != null) ? attachmentBytes.length : 0;
+            encodedMsg = new byte[5 + attachmentLength];
+            fillAnswerArray(encodedMsg, opcodeBytes, msgOpcodeBytes, attachmentBytes, true);
+            return encodedMsg;
+        }
+        //Handle ERR Message
+        else { //message.getOpcode() == 13
+            encodedMsg = new byte[4];
+            fillAnswerArray(encodedMsg, opcodeBytes, msgOpcodeBytes, null, false);
+            return encodedMsg;
+        }
     }
 
     private void pushByte(byte nextByte) {
@@ -169,11 +197,24 @@ public class BGRSEncDec implements MessageEncoderDecoder<Message> {
         result += (short) (byteArr[1] & 0xff);
         return result;
     }
-    public byte[] shortToBytes(short num)
-    {
+
+    private byte[] shortToBytes(short num) {
         byte[] bytesArr = new byte[2];
-        bytesArr[0] = (byte)((num >> 8) & 0xFF);
-        bytesArr[1] = (byte)(num & 0xFF);
+        bytesArr[0] = (byte) ((num >> 8) & 0xFF);
+        bytesArr[1] = (byte) (num & 0xFF);
         return bytesArr;
+    }
+
+    private void fillAnswerArray(byte[] answer, byte[] opcode, byte[] msgOpcode, byte[] attachment, boolean isACK) {
+        for (int i = 0; i < 2; i++) {
+            answer[i] = opcode[i];
+            answer[i + 2] = msgOpcode[i];
+        }
+        if (attachment != null) {
+            System.arraycopy(attachment, 0, answer, 4, attachment.length);
+        }
+        if (isACK) {
+            answer[answer.length - 1] = Byte.parseByte("\0");
+        }
     }
 }
