@@ -20,7 +20,7 @@ public class ACK extends Message {
 
     @Override
     public String toString() {
-        return Short.toString(opcode) + Short.toString(msgOpcode) + attachment + "\0";
+        return  msgOpcode +"\0"+ attachment ;
 
     }
 }

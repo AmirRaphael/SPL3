@@ -74,6 +74,34 @@ public class BGRSEncDec implements MessageEncoderDecoder<Message> {
 
     @Override
     public byte[] encode(Message message) {
+        if (message.getOpcode()==12){
+            byte[] opcode = shortToBytes(message.getOpcode());
+            String[] info = message.toString().split("\0");
+            byte[] msgOpcode = shortToBytes(Short.parseShort(info[0]));
+            if (info.length>1){
+                byte[] attach = info[1].getBytes();
+                byte[] result = new byte[4+attach.length+1];
+                for(int i =0; i<2;i++){
+                    result[i]=opcode[i];
+                    result[i+2]=msgOpcode[i];
+                }
+                for (int i = 0;i<attach.length;i++){
+                    result[i+4] = attach[i];
+                }
+                result[result.length-1]='\0';
+                return result;
+            }
+            else {
+                byte[] result = new byte[5];
+                for(int i =0; i<2;i++){
+                    result[i]=opcode[i];
+                    result[i+2]=msgOpcode[i];
+                }
+                result[result.length-1]='\0';
+                return result;
+            }
+        }
+
         return message.toString().getBytes();
     }
 
@@ -140,5 +168,12 @@ public class BGRSEncDec implements MessageEncoderDecoder<Message> {
         short result = (short) ((byteArr[0] & 0xff) << 8);
         result += (short) (byteArr[1] & 0xff);
         return result;
+    }
+    public byte[] shortToBytes(short num)
+    {
+        byte[] bytesArr = new byte[2];
+        bytesArr[0] = (byte)((num >> 8) & 0xFF);
+        bytesArr[1] = (byte)(num & 0xFF);
+        return bytesArr;
     }
 }

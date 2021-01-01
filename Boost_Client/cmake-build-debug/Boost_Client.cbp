@@ -82,6 +82,9 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="/Users/amirzaushnizer/Desktop/SPL3/Boost_Client/include/BGRSconnectionHandler.h">
+			<Option target="Boost_Client"/>
+		</Unit>
 		<Unit filename="/Users/amirzaushnizer/Desktop/SPL3/Boost_Client/include/connectionHandler.h">
 			<Option target="Boost_Client"/>
 		</Unit>
@@ -89,9 +92,6 @@
 			<Option target="Boost_Client"/>
 		</Unit>
 		<Unit filename="/Users/amirzaushnizer/Desktop/SPL3/Boost_Client/src/BGRSconnectionHandler.cpp">
-			<Option target="Boost_Client"/>
-		</Unit>
-		<Unit filename="/Users/amirzaushnizer/Desktop/SPL3/Boost_Client/src/BGRSconnectionHandler.h">
 			<Option target="Boost_Client"/>
 		</Unit>
 		<Unit filename="/Users/amirzaushnizer/Desktop/SPL3/Boost_Client/src/connectionHandler.cpp">

@@ -70,7 +70,78 @@ bool BGRSconnectionHandler::sendBytes(const char *bytes, int bytesToWrite) {
 }
 
 bool BGRSconnectionHandler::sendMessage(std::string &msg) {
-    return false;
+    std::vector<std::string> msgVector;
+    boost::split(msgVector,msg,boost::is_any_of(" "));
+    short opcode = map[msgVector[0]];
+    char opcodeBytes[2];
+    shortToBytes(opcode,opcodeBytes);
+    sendBytes(opcodeBytes,2);
+    switch (opcode) {
+        case 1:
+        case 2:
+        case 3: {
+            sendBytes(msgVector[1].c_str(), msgVector[1].length()+1);
+            sendBytes(msgVector[2].c_str(), msgVector[2].length()+1);
+            break;
+        }
+        case 5:
+        case 6:
+        case 7:
+        case 9:
+        case 10: {
+            short courseNum = boost::lexical_cast<short>(msgVector[1]);
+            char courseNumBytes[2];
+            shortToBytes(courseNum, courseNumBytes);
+            sendBytes(courseNumBytes, 2);
+            break;
+        }
+        case 8: {
+            sendBytes(msgVector[1].c_str(), msgVector[1].length());
+        }
+
+    }
+    return true;
 }
+void BGRSconnectionHandler::shortToBytes(short num, char* bytesArr){
+    bytesArr[0] = ((num >> 8) & 0xFF);
+    bytesArr[1] = (num & 0xFF);
+}
+
+bool BGRSconnectionHandler::getMessage(std::string& part1, std::string& part2) {
+    char opcodeBytes[2];
+    getBytes(opcodeBytes,2);
+    char msgOpcodeBytes[2];
+    getBytes(msgOpcodeBytes,2);
+    short opcode = bytesToShort(opcodeBytes);
+    short msgOpcode = bytesToShort(msgOpcodeBytes);
+    if (opcode==13){
+        part1.append("ERR " + std::to_string(msgOpcode));
+        return true;
+    } else{
+        part1.append("ACK " + std::to_string(msgOpcode));
+        char ch;
+        try {
+            do{
+                if(!getBytes(&ch, 1))
+                {
+                    return false;
+                }
+                if(ch!='\0')
+                    part2.append(1, ch);
+            }while (ch != '\0');
+        } catch (std::exception& e) {
+            std::cerr << "recv failed2 (Error: " << e.what() << ')' << std::endl;
+            return false;
+        }
+    }
+    return true;
+}
+short BGRSconnectionHandler::bytesToShort(char* bytesArr){
+    short result = (short)((bytesArr[0] & 0xff) << 8);
+    result += (short)(bytesArr[1] & 0xff);
+    return result;
+}
+
+
 
 
