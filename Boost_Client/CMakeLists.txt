@@ -9,4 +9,4 @@ include_directories(include
 add_executable(Boost_Client
         include/connectionHandler.h
         src/connectionHandler.cpp
-        src/echoClient.cpp src/BGRSclient.cpp src/BGRSconnectionHandler.cpp include/BGRSconnectionHandler.h)
+        src/echoClient.cpp src/BGRSclient.cpp src/BGRSconnectionHandler.cpp include/BGRSconnectionHandler.h include/LockingQueue.h)

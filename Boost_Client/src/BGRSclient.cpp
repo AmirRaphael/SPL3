@@ -1,7 +1,38 @@
-
+#define BUFSIZE 1024
 #include <stdlib.h>
 #include <connectionHandler.h>
 #include <BGRSconnectionHandler.h>
+#include <thread>
+#include <queue>
+#include <LockingQueue.h>
+#include <mutex>
+#include <condition_variable>
+class KeyboardListener {
+private:
+    bool& shouldTerminate;
+    std::condition_variable& cv;
+    std::mutex& logoutLock;
+    char buf[BUFSIZE];
+    LockingQueue<std::string>* msgQueue;
+public:
+    KeyboardListener(LockingQueue<std::string>* msgQueue,std::mutex& logoutLock,bool& term,std::condition_variable& cv): buf(), msgQueue(msgQueue),
+                        logoutLock(logoutLock), cv(cv), shouldTerminate(term){}
+
+    void run(){
+        while (!shouldTerminate){
+            std::cin.getline(buf, BUFSIZE);
+            std::string msg(buf);
+            msgQueue->push(msg);
+            if (msg=="LOGOUT"){
+                std::unique_lock<std::mutex> lock(logoutLock);
+                cv.wait(lock);
+            }
+        }
+    }
+
+
+
+};
 
 int main (int argc, char *argv[]) {
     if (argc < 3) {
@@ -16,42 +47,48 @@ int main (int argc, char *argv[]) {
         std::cerr << "Cannot connect to " << host << ":" << port << std::endl;
         return 1;
     }
+    LockingQueue<std::string>* msgQueue = new LockingQueue<std::string>();
+    bool term = false;
+    std::mutex msgLock;
+    std::condition_variable cv;
+    KeyboardListener listener(msgQueue,msgLock,term,cv);
+    std::thread listenerThread (&KeyboardListener::run,&listener);
 
-    //From here we will see the rest of the ehco client implementation:
     while (1) {
-        const short bufsize = 1024;
-        char buf[bufsize];
-        std::cin.getline(buf, bufsize);
-        std::string line(buf);
+        std::string line;
+        msgQueue->waitAndPop(line);
         int len=line.length();
         if (!connectionHandler.sendMessage(line)) {
             std::cout << "Disconnected. Exiting...\n" << std::endl;
             break;
         }
-        // connectionHandler.sendLine(line) appends '\n' to the message. Therefor we send len+1 bytes.
+
         std::cout << "Sent " << len+1 << " bytes to server" << std::endl;
 
 
-        // We can use one of three options to read data from the server:
-        // 1. Read a fixed number of characters
-        // 2. Read a line (up to the newline character using the getline() buffered reader
-        // 3. Read up to the null character
         std::string part1;
         std::string part2;
-        // Get back an answer: by using the expected number of bytes (len bytes + newline delimiter)
-        // We could also use: connectionHandler.getline(answer) and then get the answer without the newline char at the end
+
         if (!connectionHandler.getMessage(part1,part2)) {
             std::cout << "Disconnected. Exiting...\n" << std::endl;
             break;
         }
 
-
-        // A C string must end with a 0 char delimiter.  When we filled the answer buffer from the socket
-        // we filled up to the \n char - we must make sure now that a 0 char is also present. So we truncate last character.
-
         std::cout<<part1<<std::endl;
         std::cout<<part2<<std::endl;
+        if (part1=="ACK 4"||part1=="ERR 4"){
+            if (part1=="ACK 4"){
+                std::lock_guard<std::mutex> lk(msgLock);
+                term=true;
+                cv.notify_all();
+                break;
+            }
+            cv.notify_all();
+        }
+
 
     }
+    listenerThread.join();
+    delete msgQueue;
     return 0;
 }

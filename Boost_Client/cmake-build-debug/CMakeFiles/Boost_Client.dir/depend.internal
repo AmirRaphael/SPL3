@@ -3,6 +3,7 @@
 
 CMakeFiles/Boost_Client.dir/src/BGRSclient.cpp.o
  ../include/BGRSconnectionHandler.h
+ ../include/LockingQueue.h
  ../include/connectionHandler.h
  /Users/amirzaushnizer/Desktop/SPL3/Boost_Client/src/BGRSclient.cpp
  /usr/local/include/boost/algorithm/string.hpp

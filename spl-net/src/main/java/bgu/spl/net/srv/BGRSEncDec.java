@@ -55,7 +55,8 @@ public class BGRSEncDec implements MessageEncoderDecoder<Message> {
                 case 9:
                 case 10:
                     //expecting: [byte, byte] (short)
-                    if (len == 2) {
+                    if (len == 1) {
+                        pushByte(nextByte);
                         return popMsg();
                     }
                     pushByte(nextByte);
@@ -74,38 +75,7 @@ public class BGRSEncDec implements MessageEncoderDecoder<Message> {
 
     @Override
     public byte[] encode(Message message) {
-        if (message.getOpcode() == 12) {
-            byte[] opcode = shortToBytes(message.getOpcode());
-            String[] info = message.toString().split("\0");
-            byte[] msgOpcode = shortToBytes(Short.parseShort(info[0]));
-            if (info.length > 1) {
-                byte[] attach = info[1].getBytes();
-                byte[] result = new byte[4 + attach.length + 1];
-                for (int i = 0; i < 2; i++) {
-                    result[i] = opcode[i];
-                    result[i + 2] = msgOpcode[i];
-                }
-                for (int i = 0; i < attach.length; i++) {
-                    result[i + 4] = attach[i];
-                }
-                result[result.length - 1] = '\0';
-                return result;
-            } else {
-                byte[] result = new byte[5];
-                for (int i = 0; i < 2; i++) {
-                    result[i] = opcode[i];
-                    result[i + 2] = msgOpcode[i];
-                }
-                result[result.length - 1] = '\0';
-                return result;
-            }
-        }
-
-        return message.toString().getBytes();
-    }
-
-    public byte[] encode1(Message message) {
-        String[] msgInfo = message.toString().split(",");
+        String[] msgInfo = message.toString().split("\0");
         byte[] opcodeBytes = shortToBytes(Short.parseShort(msgInfo[0]));
         byte[] msgOpcodeBytes = shortToBytes(Short.parseShort(msgInfo[1]));
         byte[] encodedMsg;

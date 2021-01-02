@@ -24,6 +24,6 @@ public class ACK extends Message {
 
     }*/
     public String toString() {
-        return Short.toString(opcode) + "," + Short.toString(msgOpcode) + "," + attachment;
+        return Short.toString(opcode) + "\0" + Short.toString(msgOpcode) + "\0" + attachment;
     }
 }

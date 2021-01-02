@@ -18,6 +18,6 @@ public class ERR extends Message {
 
     @Override
     public String toString() {
-        return Short.toString(opcode) + "," + Short.toString(msgOpcode);
+        return Short.toString(opcode) + "\0" + Short.toString(msgOpcode);
     }
 }
