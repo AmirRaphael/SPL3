@@ -214,7 +214,7 @@ public class BGRSEncDec implements MessageEncoderDecoder<Message> {
             System.arraycopy(attachment, 0, answer, 4, attachment.length);
         }
         if (isACK) {
-            answer[answer.length - 1] = Byte.parseByte("\0");
+            answer[answer.length - 1] = "\0".getBytes()[0];
         }
     }
 }
