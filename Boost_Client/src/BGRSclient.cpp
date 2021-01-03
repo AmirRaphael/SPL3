@@ -8,7 +8,30 @@
 
 #define BUFSIZE 1024
 
-class KeyboardListener;
+class KeyboardListener {
+private:
+    bool& terminate;
+    LockingQueue<std::string>& msgQueue;
+    std::condition_variable& cv;
+    std::mutex& logoutLock;
+    char buf[BUFSIZE];
+public:
+    KeyboardListener(bool& terminate, LockingQueue<std::string>& msgQueue, 
+					std::condition_variable& cv, std::mutex& logoutLock) 
+					: terminate(terminate), msgQueue(msgQueue), cv(cv), logoutLock(logoutLock) {}
+    void run(){
+        while (!terminate){
+            std::cin.getline(buf, BUFSIZE);
+            std::string msg(buf);
+            msgQueue.push(msg);
+            if (msg == "LOGOUT"){
+                std::unique_lock<std::mutex> lk(logoutLock);
+                cv.wait(lk);
+				lk.unlock();
+            }
+        }
+    }
+};
 
 int main (int argc, char *argv[]) {
     if (argc < 3) {
@@ -29,15 +52,15 @@ int main (int argc, char *argv[]) {
 	LockingQueue<std::string> msgQueue;
     std::mutex logoutLock;
     std::condition_variable cv;
-    KeyboardListener listener(msgQueue, logoutLock, terminate, cv);
+    KeyboardListener listener(terminate, msgQueue, cv, logoutLock);
 	
 	//Start Keyboard listener thread
     std::thread listenerThread (&KeyboardListener::run, &listener);
 
     while (!terminate) {
         std::string line;
-        msgQueue -> waitAndPop(line);
-        int len = line.length();
+        msgQueue.waitAndPop(line);
+		
 		//Send message to server
         if (!connectionHandler.sendMessage(line)) {
             std::cout << "Disconnected. Exiting...\n" << std::endl;
@@ -54,7 +77,7 @@ int main (int argc, char *argv[]) {
 
 		//Print answer to client console
         std::cout << part1 << std::endl;
-		if(part2.length() > 0) {std::cout << part2 << std::endl};
+		if(part2.length() > 0) {std::cout << part2 << std::endl;}
 		
 		//Check for termination condition due to logout
 		if(part1 == "ACK 4" || part1 == "ERR 4") {
@@ -70,28 +93,3 @@ int main (int argc, char *argv[]) {
     listenerThread.join();
     return 0;
 }
-
-class KeyboardListener {
-private:
-    bool& terminate;
-    LockingQueue<std::string>& msgQueue;
-    std::condition_variable& cv;
-    std::mutex& logoutLock;
-    char buf[BUFSIZE];
-public:
-    KeyboardListener(bool& terminate, LockingQueue<std::string>& msgQueue, 
-					std::condition_variable& cv, std::mutex& logoutLock) 
-					: terminate(terminate), msgQueue(msgQueue), cv(cv), logoutLock(logoutLock) {}
-    void run(){
-        while (!terminate){
-            std::cin.getline(buf, BUFSIZE);
-            std::string msg(buf);
-            msgQueue -> push(msg);
-            if (msg == "LOGOUT"){
-                std::unique_lock<std::mutex> lk(logoutLock);
-                cv.wait(lk);
-				lk.unlock();
-            }
-        }
-    }
-};

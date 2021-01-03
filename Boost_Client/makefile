@@ -4,7 +4,7 @@ LDFLAGS:=-lboost_system
 all: BGRSclient
 	g++ -o bin/BGRSclient bin/BGRSconnectionHandler.o bin/BGRSclient.o bin/LockingQueue.o $(LDFLAGS) 
 
-BGRSclient: bin/BGRSconnectionHandler.o bin/BGRSclient.o
+BGRSclient: bin/BGRSconnectionHandler.o bin/BGRSclient.o bin/LockingQueue.o
 	
 bin/BGRSconnectionHandler.o: src/BGRSconnectionHandler.cpp
 	g++ $(CFLAGS) -o bin/BGRSconnectionHandler.o src/BGRSconnectionHandler.cpp
