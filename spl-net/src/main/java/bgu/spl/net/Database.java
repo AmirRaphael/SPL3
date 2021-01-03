@@ -28,7 +28,7 @@ public class Database {
         courseMap = new ConcurrentHashMap<>();
         userMap = new ConcurrentHashMap<>();
         courseList = new ArrayList<>();
-        initialize("/Users/amirzaushnizer/desktop/SPL3/Courses.txt");
+        initialize("/Users/amirzaushnizer/Desktop/SPL3/spl-net/Courses.txt");
     }
 
     /**

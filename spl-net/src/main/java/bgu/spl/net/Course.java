@@ -27,7 +27,7 @@ public class Course {
         int available = numOfMaxStudents - studentsRegistered.size();
         return "Course: (" + courseNum + ") " + courseName + "\n"
                 + "Seats Available: " + available + "/" + numOfMaxStudents + "\n"
-                + "Students Registered: " + studentsRegistered.toString();
+                + "Students Registered: " + studentsRegistered.toString().replace(" ","");
     }
 
     public boolean isRegistered(String name){

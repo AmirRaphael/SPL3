@@ -57,13 +57,14 @@ public class User {
         return courses.stream().map(Course::getCourseNum).collect(Collectors.toSet());
     }
 
-    private String coursesToString() {
+
+    public String coursesToString() {
         String output = "[";
         for (Course course : courses) {
-            output += course.getCourseNum() + ", ";
+            output += course.getCourseNum() + ",";
         }
         if (!courses.isEmpty()) {
-            output = output.substring(0, output.length() -2);
+            output = output.substring(0, output.length() -1);
         }
         return output + "]";
     }

@@ -11,7 +11,7 @@ public class MYCOURSES extends Message {
     @Override
     public Message execute(BGRSProtocol protocol) {
         if (protocol.getUser() != null && !protocol.getUser().isAdmin()) {
-            String myCoursesList = protocol.getUser().getCourseNums().toString();
+            String myCoursesList = protocol.getUser().coursesToString();
             return new ACK(myCoursesList, opcode);
         }
         return new ERR(opcode);

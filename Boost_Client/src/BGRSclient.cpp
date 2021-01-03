@@ -63,7 +63,7 @@ int main (int argc, char *argv[]) {
             break;
         }
 
-        std::cout << "Sent " << len+1 << " bytes to server" << std::endl;
+//        std::cout << "Sent " << len+1 << " bytes to server" << std::endl;
 
 
         std::string part1;
@@ -75,7 +75,10 @@ int main (int argc, char *argv[]) {
         }
 
         std::cout<<part1<<std::endl;
-        std::cout<<part2<<std::endl;
+        if (!part2.empty()){
+            std::cout<<part2<<std::endl;
+        }
+
         if (part1=="ACK 4"||part1=="ERR 4"){
             if (part1=="ACK 4"){
                 std::lock_guard<std::mutex> lk(msgLock);

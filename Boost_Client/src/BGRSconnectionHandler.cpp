@@ -124,7 +124,7 @@ bool BGRSconnectionHandler::getMessage(std::string& part1, std::string& part2) {
                     } while(ch != '\0');
                     return true;
                 } else { //ERR
-                    part1.append("ERR " + std::to_string(msgOpcode));
+                    part1.append("ERROR " + std::to_string(msgOpcode));
                     return true;
                 }
             }
