@@ -14,7 +14,7 @@ public class UNREGISTER extends Message {
     @Override
     public Message execute(BGRSProtocol protocol) {
         if (protocol.getUser() != null && !protocol.getUser().isAdmin()) {
-            boolean unReg = db.unReg(courseNum, protocol.getUser());
+            boolean unReg = db.unregister(courseNum, protocol.getUser());
             if (unReg) {
                 return new ACK("", opcode);
             }

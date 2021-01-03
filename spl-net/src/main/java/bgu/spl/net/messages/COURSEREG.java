@@ -15,7 +15,7 @@ public class COURSEREG extends Message {
     @Override
     public Message execute(BGRSProtocol protocol) {
         User user = protocol.getUser();
-        if (user != null && db.courseReg(courseNum, user)) {
+        if (user != null && db.register(courseNum, user)) {
             return new ACK("", opcode);
         }
         return new ERR(opcode);

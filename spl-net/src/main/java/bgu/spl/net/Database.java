@@ -14,21 +14,19 @@ import java.util.concurrent.ConcurrentHashMap;
  * You can add private fields and methods to this class as you see fit.
  */
 public class Database {
-    //Todo: check thread-safety
-
     private final ConcurrentHashMap<Short, Course> courseMap;
     private final ConcurrentHashMap<String, User> userMap;
     private final List<Short> courseList;
+
     private static class SingletonClassHolder {
         static final Database instance = new Database();
     }
 
-    //to prevent user from creating new Database
     private Database() {
         courseMap = new ConcurrentHashMap<>();
         userMap = new ConcurrentHashMap<>();
         courseList = new ArrayList<>();
-        initialize("/Users/amirzaushnizer/desktop/SPL3/Courses.txt");
+        initialize("Courses.txt");
     }
 
     /**
@@ -65,6 +63,12 @@ public class Database {
         return false;
     }
 
+    /**
+     * parses the Kdam-Course list received from input file.
+     *
+     * @param list the Kdam-course list as a String.
+     * @return @code{List<Short>} containing the Kdam-course numbers.
+     */
     private List<Short> parseList(String list) {
         if (list.equals("[]")) {
             return new ArrayList<>();
@@ -78,14 +82,37 @@ public class Database {
         return output;
     }
 
-
-    public boolean addUser(String name, String password, boolean isAdmin) {
-        User user =userMap.putIfAbsent(name, new User(name, password, isAdmin));
-        return user==null;
+    /**
+     * Adds new {@link User} to the DB if the given username is available.
+     *
+     * @param username
+     * @param password
+     * @param isAdmin
+     * @return {@code true} if user was added successfully, {@code false} otherwise.
+     */
+    public boolean addUser(String username, String password, boolean isAdmin) {
+        User user = userMap.putIfAbsent(username, new User(username, password, isAdmin));
+        return user == null;
     }
 
-    public boolean login(String name, String password) {
-        User user = userMap.get(name);
+    /**
+     * @param username
+     * @return the specified {@link User}.
+     */
+    public User getUser(String username) {
+        return userMap.get(username);
+    }
+
+    /**
+     * Logs the specified {@link User} into the service.
+     * fails if the user is already logged in, or if given username/password is incorrect.
+     *
+     * @param username
+     * @param password
+     * @return {@code true} if user was logged in successfully, {@code false} otherwise.
+     */
+    public boolean login(String username, String password) {
+        User user = userMap.get(username);
         // user == null iff this user does not exist in the DB
         if (user != null && user.verifyPassword(password)) {
             return user.login();
@@ -93,18 +120,26 @@ public class Database {
         return false;
     }
 
-    public User getUser(String name) {
-        return userMap.get(name);
+    /**
+     * Logs the specified {@link User} out of the service.
+     *
+     * @param username
+     */
+    public void logout(String username) {
+        userMap.get(username).logout();
     }
 
-    public void logout(String name) {
-        userMap.get(name).logout();
-    }
-
-    public boolean courseReg(short courseNum, User user) {
+    /**
+     * Registers the specified {@link User} to the specified {@link Course}.
+     *
+     * @param courseNum
+     * @param user
+     * @return {@code true} if user was registered successfully, {@code false} otherwise.
+     */
+    public boolean register(short courseNum, User user) {
         Course course = courseMap.get(courseNum);
-        if (course != null && !user.isAdmin() && user.hasKdamCourses(course.getKdamCoursesList()) ) {
-            if(course.addStudent(user.getUsername())){
+        if (course != null && !user.isAdmin() && user.hasKdamCourses(course.getKdamCoursesList())) {
+            if (course.addStudent(user.getUsername())) {
                 user.addCourse(course);
                 return true;
             }
@@ -112,28 +147,30 @@ public class Database {
         return false;
     }
 
-    public List<Short> getKdamCourses(short courseNum) {
+    /**
+     * Unregisters the specified {@link User} from the specified {@link Course}.
+     *
+     * @param courseNum
+     * @param user
+     * @return {@code true} if user was unregistered successfully, {@code false} otherwise.
+     */
+    public boolean unregister(short courseNum, User user) {
         Course course = courseMap.get(courseNum);
         if (course != null) {
-            return course.getKdamCoursesList();
+            return course.removeStudent(user.getUsername()) && user.removeCourse(course);
         }
-        return null;
+        return false;
     }
 
-    public String getCourseStat(short courseNum) {
-        Course course = courseMap.get(courseNum);
-        if (course != null)
-            return course.toString();
-        return null;
-    }
-
-    public String getStudentStat(String username) {
-        User user = userMap.get(username);
-        if (user != null)
-            return user.toString();
-        return null;
-    }
-
+    /**
+     * Checks if the specified {@link User} is registered to the specified {@link Course}.
+     *
+     * @param courseNum
+     * @param user
+     * @return {@code true} if {@code User} is registered to the {@code Course},
+     * {@code false} if {@code User} is not registered to the {@code Course},
+     * {@code null} if the {@code Course} does not exist in the DB.
+     */
     public Boolean isRegistered(short courseNum, User user) {
         Course course = courseMap.get(courseNum);
         if (course != null) {
@@ -142,13 +179,40 @@ public class Database {
         return null;
     }
 
-    public boolean unReg(short courseNum, User user) {
+    /**
+     * @param courseNum the number of the {@link Course} for which the Kdam-course list reefers to.
+     * @return {@code List<Short>} containing the Kdam-course numbers of the specified {@code Course},
+     * {@code null} if the {@code Course} does not exist in the DB.
+     */
+    public List<Short> getKdamCourses(short courseNum) {
         Course course = courseMap.get(courseNum);
         if (course != null) {
-            return course.unReg(user) && user.removeCourse(course);
+            return course.getKdamCoursesList();
         }
-        return false;
+        return null;
     }
 
+    /**
+     * @param courseNum
+     * @return the status of the specified {@link Course},
+     * {@code null} if the {@code Course} does not exist in the DB.
+     */
+    public String getCourseStat(short courseNum) {
+        Course course = courseMap.get(courseNum);
+        if (course != null)
+            return course.toString();
+        return null;
+    }
 
+    /**
+     * @param username
+     * @return the status of the specified {@link User},
+     * {@code null} if the {@code User} does not exist in the DB.
+     */
+    public String getStudentStat(String username) {
+        User user = userMap.get(username);
+        if (user != null)
+            return user.toString();
+        return null;
+    }
 }
