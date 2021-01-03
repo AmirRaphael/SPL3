@@ -1,7 +1,3 @@
-//
-// Created by Amir Zaushnizer on 31/12/2020.
-//
-
 #include "BGRSconnectionHandler.h"
 
 BGRSconnectionHandler::~BGRSconnectionHandler() {
@@ -70,49 +66,61 @@ bool BGRSconnectionHandler::sendBytes(const char *bytes, int bytesToWrite) {
 }
 
 bool BGRSconnectionHandler::sendMessage(std::string &msg) {
+	try {
     std::vector<std::string> msgVector;
-    boost::split(msgVector,msg,boost::is_any_of(" "));
+    boost::split(msgVector, msg,boost::is_any_of(" "));
+	
+	//Find and send message opcode
     short opcode = map[msgVector[0]];
     char opcodeBytes[2];
-    shortToBytes(opcode,opcodeBytes);
-    sendBytes(opcodeBytes,2);
-    switch (opcode) {
-        case 1:
-        case 2:
-        case 3: {
-            sendBytes(msgVector[1].c_str(), msgVector[1].length()+1);
-            sendBytes(msgVector[2].c_str(), msgVector[2].length()+1);
-            break;
-        }
-        case 5:
-        case 6:
-        case 7:
-        case 9:
-        case 10: {
-            short courseNum = boost::lexical_cast<short>(msgVector[1]);
-            char courseNumBytes[2];
-            shortToBytes(courseNum, courseNumBytes);
-            sendBytes(courseNumBytes, 2);
-            break;
-        }
-        case 8: {
-            sendBytes(msgVector[1].c_str(), msgVector[1].length()+1);
-        }
-
-    }
-    return true;
-}
-void BGRSconnectionHandler::shortToBytes(short num, char* bytesArr){
-    bytesArr[0] = ((num >> 8) & 0xFF);
-    bytesArr[1] = (num & 0xFF);
+    shortToBytes(opcode, opcodeBytes);
+    bool opcodeSent = sendBytes(opcodeBytes, 2);
+	
+	if(opcodeSent) {
+	//Send message attachments
+		switch (opcode) {
+			case 1:
+			case 2:
+			case 3: {
+				if(sendBytes(msgVector[1].c_str(), msgVector[1].length()+1) && 
+					sendBytes(msgVector[2].c_str(), msgVector[2].length()+1)) {
+					return true;
+				}
+				break;
+			}
+			case 5:
+			case 6:
+			case 7:
+			case 9:
+			case 10: {
+				short courseNum = boost::lexical_cast<short>(msgVector[1]);
+				char courseNumBytes[2];
+				shortToBytes(courseNum, courseNumBytes);
+				if(sendBytes(courseNumBytes, 2)) {
+					return true;
+				}
+				break;
+			}
+			case 8: {
+				if(sendBytes(msgVector[1].c_str(), msgVector[1].length()+1)) {
+					return true;
+				}
+				break;
+			}
+		}
+	}
+	} catch(std::exception& e) {
+		std::cerr << "send failed (Error: " << e.what() << ')' << std::endl;
+	}
+    return false;
 }
 
 bool BGRSconnectionHandler::getMessage(std::string& part1, std::string& part2) {
     try {
         char opcodeBytes[2];
-        if(getBytes(opcodeBytes,2)) {
+        if(getBytes(opcodeBytes, 2)) {
             char msgOpcodeBytes[2];
-            if(getBytes(msgOpcodeBytes,2)) {
+            if(getBytes(msgOpcodeBytes, 2)) {
                 short opcode = bytesToShort(opcodeBytes);
                 short msgOpcode = bytesToShort(msgOpcodeBytes);
                 if(opcode == 12) { //ACK
@@ -124,7 +132,7 @@ bool BGRSconnectionHandler::getMessage(std::string& part1, std::string& part2) {
                     } while(ch != '\0');
                     return true;
                 } else { //ERR
-                    part1.append("ERR " + std::to_string(msgOpcode));
+                    part1.append("ERROR " + std::to_string(msgOpcode));
                     return true;
                 }
             }
@@ -134,12 +142,14 @@ bool BGRSconnectionHandler::getMessage(std::string& part1, std::string& part2) {
     }
     return false;
 }
+
 short BGRSconnectionHandler::bytesToShort(char* bytesArr){
     short result = (short)((bytesArr[0] & 0xff) << 8);
     result += (short)(bytesArr[1] & 0xff);
     return result;
 }
 
-
-
-
+void BGRSconnectionHandler::shortToBytes(short num, char* bytesArr){
+    bytesArr[0] = ((num >> 8) & 0xFF);
+    bytesArr[1] = (num & 0xFF);
+}

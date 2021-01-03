@@ -1,9 +1,6 @@
-//
-// Created by Amir Zaushnizer on 31/12/2020.
-//
-
 #ifndef BOOST_CLIENT_BGRSCONNECTIONHANDLER_H
 #define BOOST_CLIENT_BGRSCONNECTIONHANDLER_H
+
 #include <string>
 #include <iostream>
 #include <boost/asio.hpp>
@@ -36,6 +33,7 @@ private:
 
 public:
     BGRSconnectionHandler(std::string host, short port);
+	
     virtual ~BGRSconnectionHandler();
 
     // Connect to the remote machine
@@ -57,6 +55,7 @@ public:
 
     // Close down the connection properly.
     void close();
+	
     void shortToBytes(short num, char* bytesArr);
 
     short bytesToShort(char *bytesArr);
