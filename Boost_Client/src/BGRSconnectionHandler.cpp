@@ -107,6 +107,10 @@ bool BGRSconnectionHandler::sendMessage(std::string &msg) {
 				}
 				break;
 			}
+			case 4:
+			case 11: {
+                return true;
+            }
 		}
 	}
 	} catch(std::exception& e) {

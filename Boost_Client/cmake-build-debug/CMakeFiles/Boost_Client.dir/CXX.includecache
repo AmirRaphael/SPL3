@@ -34,6 +34,10 @@ mutex
 condition_variable
 -
 
+/Users/amirzaushnizer/Desktop/SPL3/Boost_Client/src/BGRSconnectionHandler.cpp
+BGRSconnectionHandler.h
+/Users/amirzaushnizer/Desktop/SPL3/Boost_Client/src/BGRSconnectionHandler.h
+
 /usr/local/include/boost/algorithm/string.hpp
 boost/algorithm/string/std_containers_traits.hpp
 -
