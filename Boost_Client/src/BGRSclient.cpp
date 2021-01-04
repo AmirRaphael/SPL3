@@ -11,19 +11,19 @@
 class KeyboardListener {
 private:
     bool& terminate;
-    LockingQueue<std::string>& msgQueue;
+    LockingQueue<std::string>* msgQueue;
     std::condition_variable& cv;
     std::mutex& logoutLock;
     char buf[BUFSIZE];
 public:
-    KeyboardListener(bool& terminate, LockingQueue<std::string>& msgQueue, 
+    KeyboardListener(bool& terminate, LockingQueue<std::string>* msgQueue, 
 					std::condition_variable& cv, std::mutex& logoutLock) 
 					: terminate(terminate), msgQueue(msgQueue), cv(cv), logoutLock(logoutLock) {}
     void run(){
         while (!terminate){
             std::cin.getline(buf, BUFSIZE);
             std::string msg(buf);
-            msgQueue.push(msg);
+            msgQueue -> push(msg);
             if (msg == "LOGOUT"){
                 std::unique_lock<std::mutex> lk(logoutLock);
                 cv.wait(lk);
@@ -59,7 +59,7 @@ int main (int argc, char *argv[]) {
 
     while (!terminate) {
         std::string line;
-        msgQueue.waitAndPop(line);
+        msgQueue -> waitAndPop(line);
 		
 		//Send message to server
         if (!connectionHandler.sendMessage(line)) {
