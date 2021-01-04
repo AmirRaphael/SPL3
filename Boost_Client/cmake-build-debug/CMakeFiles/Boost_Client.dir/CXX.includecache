@@ -20,9 +20,19 @@ unordered_map
 boost/lexical_cast.hpp
 -
 
-/Users/amirzaushnizer/Desktop/SPL3/Boost_Client/src/BGRSconnectionHandler.cpp
+/Users/amirzaushnizer/Desktop/SPL3/Boost_Client/src/BGRSclient.cpp
+stdlib.h
+-
 BGRSconnectionHandler.h
-/Users/amirzaushnizer/Desktop/SPL3/Boost_Client/src/BGRSconnectionHandler.h
+-
+thread
+-
+queue
+-
+mutex
+-
+condition_variable
+-
 
 /usr/local/include/boost/algorithm/string.hpp
 boost/algorithm/string/std_containers_traits.hpp

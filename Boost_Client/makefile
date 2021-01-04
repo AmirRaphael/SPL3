@@ -1,17 +1,13 @@
-CFLAGS:=-c -Wall -Weffc++ -g -std=c++11 -Iinclude
-LDFLAGS:=-lboost_system
+all: BGRSclient
 
-all: EchoClient
-	g++ -o bin/echoExample bin/connectionHandler.o bin/echoClient.o $(LDFLAGS) 
+BGRSclient: bin/BGRSclient.o bin/BGRSconnectionHandler.o 
+	g++ -o bin/BGRSclient bin/BGRSclient.o bin/BGRSconnectionHandler.o -lboost_system -pthread
 
-EchoClient: bin/connectionHandler.o bin/echoClient.o
+bin/BGRSclient.o: src/BGRSclient.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/BGRSclient.o src/BGRSclient.cpp
+
+bin/BGRSconnectionHandler.o: src/BGRSconnectionHandler.cpp
+	g++ -g -Wall -Weffc++ -std=c++11 -c -Iinclude -o bin/BGRSconnectionHandler.o src/BGRSconnectionHandler.cpp
 	
-bin/connectionHandler.o: src/connectionHandler.cpp
-	g++ $(CFLAGS) -o bin/connectionHandler.o src/connectionHandler.cpp
-
-bin/echoClient.o: src/echoClient.cpp
-	g++ $(CFLAGS) -o bin/echoClient.o src/echoClient.cpp
-	
-.PHONY: clean
-clean:
+clean: 
 	rm -f bin/*

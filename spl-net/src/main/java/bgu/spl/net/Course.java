@@ -34,6 +34,13 @@ public class Course {
         return studentsRegistered.contains(name);
     }
 
+    /**
+     * Registers the specified {@link User} to this Course.
+     *
+     * @param name the username of the specified {@code User}.
+     * @return {@code true} if the user was registered successfully,
+     * {@code false} if there is no seat available for the user.
+     */
     public boolean addStudent(String name){
         if (seatsAvailable.tryAcquire()){
            if (studentsRegistered.add(name)){
@@ -60,6 +67,13 @@ public class Course {
         return orderNum;
     }
 
+    /**
+     * Unregisters the specified {@link User} from this Course.
+     *
+     * @param user the username of the specified {@code User}.
+     * @return {@code true} if the user was unregistered successfully,
+     * {@code false} otherwise.
+     */
     public boolean unReg(User user) {
         boolean removed = studentsRegistered.remove(user.getUsername());
         if (removed)

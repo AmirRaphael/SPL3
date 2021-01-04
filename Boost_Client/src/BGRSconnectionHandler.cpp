@@ -72,10 +72,12 @@ bool BGRSconnectionHandler::sendBytes(const char *bytes, int bytesToWrite) {
 bool BGRSconnectionHandler::sendMessage(std::string &msg) {
     std::vector<std::string> msgVector;
     boost::split(msgVector,msg,boost::is_any_of(" "));
+    //Find and send message opcode
     short opcode = map[msgVector[0]];
     char opcodeBytes[2];
     shortToBytes(opcode,opcodeBytes);
     sendBytes(opcodeBytes,2);
+    //Send message attachments
     switch (opcode) {
         case 1:
         case 2:
