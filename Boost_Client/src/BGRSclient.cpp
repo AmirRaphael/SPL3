@@ -23,7 +23,7 @@ public:
         while (!terminate){
             std::cin.getline(buf, BUFSIZE);
             std::string msg(buf);
-            msgQueue -> push(msg);
+            msgQueue->push(msg);
             if (msg == "LOGOUT"){
                 std::unique_lock<std::mutex> lk(logoutLock);
                 cv.wait(lk);
@@ -49,7 +49,7 @@ int main (int argc, char *argv[]) {
     }
 	
     bool terminate = false;
-	LockingQueue<std::string> msgQueue;
+	LockingQueue<std::string>* msgQueue = new LockingQueue<std::string>();
     std::mutex logoutLock;
     std::condition_variable cv;
     KeyboardListener listener(terminate, msgQueue, cv, logoutLock);
@@ -59,7 +59,7 @@ int main (int argc, char *argv[]) {
 
     while (!terminate) {
         std::string line;
-        msgQueue -> waitAndPop(line);
+        msgQueue->waitAndPop(line);
 		
 		//Send message to server
         if (!connectionHandler.sendMessage(line)) {
@@ -91,5 +91,6 @@ int main (int argc, char *argv[]) {
     }
 	
     listenerThread.join();
+	delete msgQueue;
     return 0;
 }
