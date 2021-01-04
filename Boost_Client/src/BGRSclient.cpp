@@ -1,12 +1,44 @@
 #include <stdlib.h>
 #include <BGRSconnectionHandler.h>
-#include <LockingQueue.h>
 #include <thread>
 #include <queue>
 #include <mutex>
 #include <condition_variable>
 
 #define BUFSIZE 1024
+template<typename T>
+class LockingQueue
+{
+public:
+    LockingQueue():queue(),guard(),signal(){}
+
+    void push(T const& _data)
+    {
+        {
+            std::lock_guard<std::mutex> lock(guard);
+            queue.push(_data);
+        }
+        signal.notify_one();
+    }
+
+
+    void waitAndPop(T& _value)
+    {
+        std::unique_lock<std::mutex> lock(guard);
+        while (queue.empty())
+        {
+            signal.wait(lock);
+        }
+
+        _value = queue.front();
+        queue.pop();
+    }
+
+private:
+    std::queue<T> queue;
+    mutable std::mutex guard;
+    std::condition_variable signal;
+};
 
 class KeyboardListener {
 private:
